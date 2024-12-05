@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Countdown with Balloon Blasting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+            text-align: center;
+            transition: background 0.5s;
+        }
+        h1 {
+            color: #ff69b4;
+        }
+        .container {
+            margin: 50px auto;
+            position: relative;
+            height: 400px;
+        }
+        .balloon {
+            width: 100px;
+            height: 150px;
+            background:blue;
+            border-radius: 50%;
+            display: none;
+            margin: 0 auto;
+            position: relative;
+            cursor: pointer;
+        }
+        .balloon span {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .thread {
+            width: 4px;
+            height: 100px;
+            background: blue; /* Brown color for the thread */
+            position: absolute;
+            bottom: -100px; /* Start below the balloon */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1; /* Place behind the balloon */
+        }
+        .message-box {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+            color: #4CAF50;
+            z-index: 10;
+            text-align: center;
+        }
+        .message-box .countdown-message {
+            font-size: 20px;
+            color: #555;
+        }
+        .popped {
+            background: #fff;
+            border: 2px dashed #ff69b4;
+            animation: pop 0.3s forwards;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            100% { transform: scale(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Blast the Balloons!</h1>
+    <div class="container" id="balloonContainer">
+        <div class="message-box" id="finalMessage">
+            <div class="countdown-message" id="countdownMessage"></div>
+            🎉Advance Happy Birthday Neeraja Akka❤️🎂
+        </div>
+    </div>
+
+    <script>
+        // Birthday countdown - change the date here
+        const targetDate = new Date("Dec 6,2024").getTime();
+        const balloonContainer = document.getElementById("balloonContainer");
+        const finalMessage = document.getElementById("finalMessage");
+        const countdownMessage = document.getElementById("countdownMessage");
+        const body = document.body;
+
+        // Background colors for each balloon pop (lighter shades)
+        const backgroundColors = ["#ffe6f2", "#fff0e6", "#f2f2ff", "#e6ffe6", "#ffffe6", "#ffe6cc", "#e6f2ff"];
+
+        // Calculate the remaining days
+        function getRemainingDays() {
+            const today = new Date().getTime();
+            const difference = targetDate - today;
+            return Math.ceil(difference / (1000 * 60 * 60 * 24));
+        }
+
+        // Create and show balloons one by one
+        function createBalloon(day) {
+            const balloon = document.createElement("div");
+            balloon.className = "balloon";
+            balloon.innerHTML = `<span>${day}</span>`;
+            
+            const thread = document.createElement("div");
+            thread.className = "thread";
+
+            // Append both balloon and thread to the container
+            balloon.appendChild(thread);
+            balloonContainer.appendChild(balloon);
+
+            balloon.addEventListener("click", () => popBalloon(balloon, day));
+            return balloon;
+        }
+
+        // Show balloons one by one after previous balloon is popped
+        function showBalloonSequentially(day, totalDays) {
+            const balloon = createBalloon(day);
+            balloon.style.display = "inline-block"; // Show balloon
+
+            // Make the balloon interactive
+            balloon.classList.add("active");
+        }
+
+        // Pop the balloon
+        function popBalloon(balloon, day) {
+            if (!balloon.classList.contains("active")) return; // Only pop active balloon
+
+            balloon.classList.add("popped");
+            balloon.style.pointerEvents = "none"; // Disable further clicking
+            balloon.classList.remove("active");
+
+            // Change the background color
+            body.style.backgroundColor = backgroundColors[day % backgroundColors.length];
+
+            // After the balloon is popped, wait and show the next one
+            setTimeout(() => {
+                balloon.remove(); // Remove the popped balloon
+
+                const nextDay = day + 1;
+                if (nextDay <= getRemainingDays()) {
+                    showBalloonSequentially(nextDay, getRemainingDays()); // Show next balloon
+                } else {
+                    // Show final message when all balloons are popped
+                    countdownMessage.textContent = `More ${day} days to Go!`;
+                    finalMessage.style.display = "block";
+                }
+            }, 500);
+        }
+
+        // Initialize the countdown with first balloon
+        const daysLeft = getRemainingDays();
+        showBalloonSequentially(1, daysLeft); // Start with the first balloon
+    </script>
+
+</body>
+</html>
